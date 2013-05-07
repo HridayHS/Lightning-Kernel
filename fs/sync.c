@@ -246,11 +246,9 @@ static int do_fsync(unsigned int fd, int datasync)
 
 SYSCALL_DEFINE1(fsync, unsigned int, fd)
 {
-#ifdef CONFIG_DYNAMIC_FSYNC
-	if (likely(dyn_fsync_active && !power_suspend_active))
+	if (!fsync_enabled)
 		return 0;
-	else
-#endif
+	
 	return do_fsync(fd, 0);
 }
 

@@ -284,15 +284,16 @@ static void zswap_rb_erase(struct rb_root *root, struct zswap_entry *entry)
 }
 
 /*
- * Carries out the common pattern of freeing and entry's zbud allocation,
+ * Carries out the common pattern of freeing and entry's zsmalloc allocation,
  * freeing the entry itself, and decrementing the number of stored pages.
  */
-static void zswap_free_entry(struct zswap_entry *entry)
+static void zswap_free_entry(struct zswap_tree *tree,
+			struct zswap_entry *entry)
 {
-	zbud_free(zswap_pool, entry->handle);
+	zbud_free(tree->pool, entry->handle);
 	zswap_entry_cache_free(entry);
 	atomic_dec(&zswap_stored_pages);
-	zswap_pool_pages = zbud_get_pool_size(zswap_pool);
+	zswap_pool_pages = zbud_get_pool_size(tree->pool);
 }
 
 /* caller must hold the tree lock */
@@ -312,7 +313,7 @@ static void zswap_entry_put(struct zswap_tree *tree,
 	BUG_ON(refcount < 0);
 	if (refcount == 0) {
 		zswap_rb_erase(&tree->rbroot, entry);
-		zswap_free_entry(entry);
+		zswap_free_entry(tree, entry);
 	}
 }
 
@@ -408,8 +409,8 @@ cleanup:
 **********************************/
 static bool zswap_is_full(void)
 {
-	return totalram_pages * zswap_max_pool_percent / 100 <
-		zswap_pool_pages;
+	return (totalram_pages * zswap_max_pool_percent / 100 <
+		zswap_pool_pages);
 }
 
 /*********************************
@@ -621,12 +622,7 @@ static int zswap_writeback_entry(struct zbud_pool *pool, unsigned long handle)
 	*/
 fail:
 	spin_lock(&tree->lock);
-	refcount = zswap_entry_put(entry);
-	if (refcount <= 0) {
-		/* invalidate happened, consider writeback as success */
-		zswap_free_entry(tree, entry);
-		ret = 0;
-	}
+	zswap_entry_put(tree, entry);
 	spin_unlock(&tree->lock);
 
 end:
@@ -808,11 +804,8 @@ static void zswap_frontswap_invalidate_area(unsigned type)
 
 	/* walk the tree and free everything */
 	spin_lock(&tree->lock);
-	rbtree_postorder_for_each_entry_safe(entry, n, &tree->rbroot, rbnode) {
-		zbud_free(tree->pool, entry->handle);
-		zswap_entry_cache_free(entry);
-		atomic_dec(&zswap_stored_pages);
-	}
+	rbtree_postorder_for_each_entry_safe(entry, n, &tree->rbroot, rbnode)
+		zswap_free_entry(tree, entry);
 	tree->rbroot = RB_ROOT;
 	spin_unlock(&tree->lock);
 

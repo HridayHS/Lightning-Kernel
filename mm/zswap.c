@@ -621,7 +621,12 @@ static int zswap_writeback_entry(struct zbud_pool *pool, unsigned long handle)
 	*/
 fail:
 	spin_lock(&tree->lock);
-	zswap_entry_put(tree, entry);
+	refcount = zswap_entry_put(entry);
+	if (refcount <= 0) {
+		/* invalidate happened, consider writeback as success */
+		zswap_free_entry(tree, entry);
+		ret = 0;
+	}
 	spin_unlock(&tree->lock);
 
 end:

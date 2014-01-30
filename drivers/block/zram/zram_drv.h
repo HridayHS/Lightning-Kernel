@@ -96,13 +96,16 @@ struct zram_stats {
 };
 
 struct zram_meta {
-	struct zram_table_entry *table;
+	rwlock_t tb_lock;	/* protect table */
+	void *compress_workmem;
+	void *compress_buffer;
+	struct table *table;
 	struct zs_pool *mem_pool;
 };
 
 struct zram {
 	struct zram_meta *meta;
-	struct rw_semaphore lock; /* protect compression buffers, table,
+	struct rw_semaphore lock; /* protect compression buffers,
 				   * reads and writes
 				   */
 

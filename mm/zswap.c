@@ -287,13 +287,12 @@ static void zswap_rb_erase(struct rb_root *root, struct zswap_entry *entry)
  * Carries out the common pattern of freeing and entry's zbud allocation,
  * freeing the entry itself, and decrementing the number of stored pages.
  */
-static void zswap_free_entry(struct zswap_tree *tree,
-			struct zswap_entry *entry)
+static void zswap_free_entry(struct zswap_entry *entry)
 {
-	zbud_free(tree->pool, entry->handle);
+	zbud_free(zswap_pool, entry->handle);
 	zswap_entry_cache_free(entry);
 	atomic_dec(&zswap_stored_pages);
-	zswap_pool_pages = zbud_get_pool_size(tree->pool);
+	zswap_pool_pages = zbud_get_pool_size(zswap_pool);
 }
 
 /* caller must hold the tree lock */
@@ -313,7 +312,7 @@ static void zswap_entry_put(struct zswap_tree *tree,
 	BUG_ON(refcount < 0);
 	if (refcount == 0) {
 		zswap_rb_erase(&tree->rbroot, entry);
-		zswap_free_entry(tree, entry);
+		zswap_free_entry(entry);
 	}
 }
 
@@ -805,11 +804,9 @@ static void zswap_frontswap_invalidate_area(unsigned type)
 	/* walk the tree and free everything */
 	spin_lock(&tree->lock);
 	rbtree_postorder_for_each_entry_safe(entry, n, &tree->rbroot, rbnode)
-		zswap_free_entry(tree, entry);
+		zswap_free_entry(entry);
 	tree->rbroot = RB_ROOT;
 	spin_unlock(&tree->lock);
-
-	zbud_destroy_pool(tree->pool);
 	kfree(tree);
 	zswap_trees[type] = NULL;
 }

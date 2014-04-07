@@ -108,7 +108,7 @@ struct zram {
 	struct zram_meta *meta;
 	struct request_queue *queue;
 	struct gendisk *disk;
-	/* Prevent concurrent execution of device init */
+	/* Prevent concurrent execution of device init, reset and R/W request */
 	struct rw_semaphore init_lock;
 	/*
 	 * the number of pages zram can consume for storing compressed data

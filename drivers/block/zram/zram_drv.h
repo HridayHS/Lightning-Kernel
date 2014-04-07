@@ -77,8 +77,9 @@ enum zram_pageflags {
 /* Allocated for each disk page */
 struct zram_table_entry {
 	unsigned long handle;
-	unsigned long value;
-};
+	u16 size;	/* object size (excluding header) */
+	u8 flags;
+} __aligned(4);
 
 struct zram_stats {
 	atomic64_t compr_data_size;	/* compressed size of pages stored */

@@ -96,7 +96,7 @@ struct zram_stats {
 
 struct zram_meta {
 	rwlock_t tb_lock;	/* protect table */
-	struct table *table;
+	struct zram_table_entry *table;
 	struct zs_pool *mem_pool;
 };
 

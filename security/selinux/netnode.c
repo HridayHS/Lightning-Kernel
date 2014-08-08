@@ -311,7 +311,6 @@ static int sel_netnode_avc_callback(u32 event)
 static __init int sel_netnode_init(void)
 {
 	int iter;
-	int ret;
 
 	if (!selinux_enabled)
 		return 0;
@@ -321,11 +320,7 @@ static __init int sel_netnode_init(void)
 		sel_netnode_hash[iter].size = 0;
 	}
 
-	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET);
-	if (ret != 0)
-		panic("avc_add_callback() failed, error %d\n", ret);
-
-	return ret;
+	return 0;
 }
 
 __initcall(sel_netnode_init);

@@ -633,7 +633,9 @@ static int msm_iommu_sec_ptbl_map_range(struct msm_iommu_drvdata *iommu_drvdata,
 	/*
 	 * Ensure that the buffer is in RAM by the time it gets to TZ
 	 */
-	dmac_clean_range(flush_va, flush_va + map.plist.list_size);
+	flush_va_end = (void *) (((unsigned long) flush_va) +
+			(map.plist.list_size * sizeof(*pa_list)));
+	dmac_clean_range(flush_va, flush_va_end);
 
 	ret = msm_iommu_sec_map2(&map);
 	kfree(pa_list);

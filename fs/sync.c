@@ -21,7 +21,7 @@
 #endif
 
 #ifdef CONFIG_DYNAMIC_FSYNC
-extern bool early_suspend_active;
+extern bool power_suspend_active;
 extern bool dyn_fsync_active;
 #endif
 
@@ -105,6 +105,22 @@ static void fdatawait_one_bdev(struct block_device *bdev, void *arg)
 {
 	filemap_fdatawait(bdev->bd_inode->i_mapping);
 }
+
+
+#ifdef CONFIG_DYNAMIC_FSYNC
+/*
+ * Sync all the data for all the filesystems (called by sys_sync() and
+ * emergency sync)
+ */
+void sync_filesystems(int wait)
+{
+	iterate_supers(sync_inodes_one_sb, NULL);
+	iterate_supers(sync_fs_one_sb, &wait);
+	iterate_supers(sync_fs_one_sb, &wait);
+	iterate_bdevs(fdatawrite_one_bdev, NULL);
+	iterate_bdevs(fdatawait_one_bdev, NULL);
+}
+#endif
 
 /*
  * Sync everything. We start by waking flusher threads so that most of
@@ -195,7 +211,7 @@ SYSCALL_DEFINE1(syncfs, int, fd)
 int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 {
 #ifdef CONFIG_DYNAMIC_FSYNC
-	if (likely(dyn_fsync_active && !early_suspend_active))
+	if (likely(dyn_fsync_active && !power_suspend_active))
 		return 0;
 	else {
 #endif
@@ -331,7 +347,7 @@ no_async:
 SYSCALL_DEFINE1(fsync, unsigned int, fd)
 {
 #ifdef CONFIG_DYNAMIC_FSYNC
-    if (likely(dyn_fsync_active && !early_suspend_active))
+    if (likely(dyn_fsync_active && !power_suspend_active))
 		return 0;
 	else
 #endif
@@ -411,7 +427,7 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
 				unsigned int, flags)
 {
 #ifdef CONFIG_DYNAMIC_FSYNC
-	if (likely(dyn_fsync_active && !early_suspend_active))
+	if (likely(dyn_fsync_active && !power_suspend_active))
 		return 0;
 	else {
 #endif
@@ -504,7 +520,7 @@ SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
 				 loff_t, offset, loff_t, nbytes)
 {
 #ifdef CONFIG_DYNAMIC_FSYNC
-	if (likely(dyn_fsync_active && !early_suspend_active))
+	if (likely(dyn_fsync_active && !power_suspend_active))
 		return 0;
 	else
 #endif

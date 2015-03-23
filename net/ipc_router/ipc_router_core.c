@@ -1032,7 +1032,7 @@ static int post_pkt_to_port(struct msm_ipc_port *port_ptr,
 	struct rr_packet *temp_pkt = pkt;
 	void (*notify)(unsigned event, void *oob_data,
 		       size_t oob_data_len, void *priv);
-	void (*data_ready)(struct sock *sk, int bytes) = NULL;
+	void (*data_ready)(struct sock *sk, int bytes) f= NULL;
 	struct sock *sk;
 
 	if (unlikely(!port_ptr || !pkt))
@@ -1267,7 +1267,7 @@ void ipc_router_release_port(struct kref *ref)
 		release_pkt(pkt);
 	}
 	mutex_unlock(&port_ptr->port_rx_q_lock_lhc3);
-	wakeup_source_unregister(port_ptr->port_rx_ws);
+	wakeup_source_trash(&port_ptr->port_rx_ws);
 	if (port_ptr->endpoint)
 		sock_put(ipc_port_sk(port_ptr->endpoint));
 	kfree(port_ptr);

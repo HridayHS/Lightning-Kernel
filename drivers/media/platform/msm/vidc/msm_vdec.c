@@ -531,16 +531,6 @@ static struct msm_vidc_ctrl msm_vdec_ctrls[] = {
 		.step = 1,
 		.qmenu = NULL,
 	},
-	{
-		.id = V4L2_CID_MPEG_VIDC_VIDEO_OPERATING_RATE,
-		.name = "Set Decoder Operating rate",
-		.type = V4L2_CTRL_TYPE_INTEGER,
-		.minimum = 0,
-		.maximum = 300 << 16,  /* 300 fps in Q16 format*/
-		.default_value = 0,
-		.step = 1,
-		.qmenu = NULL,
-	},
 };
 
 #define NUM_CTRLS ARRAY_SIZE(msm_vdec_ctrls)
@@ -1175,11 +1165,14 @@ int msm_vdec_s_fmt(struct msm_vidc_inst *inst, struct v4l2_format *f)
 	int i;
 	struct hal_buffer_requirements *bufreq;
 	int max_input_size = 0;
+	struct hfi_device *hdev;
 
-	if (!inst || !f) {
+	if (!inst || !f || !inst->core || !inst->core->device) {
 		dprintk(VIDC_ERR, "%s invalid parameters\n", __func__);
 		return -EINVAL;
 	}
+
+	hdev = inst->core->device;
 
 	if (f->type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
 		fmt = msm_comm_get_pixel_fmt_fourcc(vdec_formats,
@@ -2224,9 +2217,7 @@ static int try_set_ctrl(struct msm_vidc_inst *inst, struct v4l2_ctrl *ctrl)
 		property_id = HAL_CONFIG_REALTIME;
 		hal_property.enable = ctrl->val;
 		pdata = &hal_property;
-		break;
-	case V4L2_CID_MPEG_VIDC_VIDEO_OPERATING_RATE:
-		property_id = 0;
+		dprintk(VIDC_ERR, "Priority set to %d\n", hal_property.enable);
 		break;
 	default:
 		break;

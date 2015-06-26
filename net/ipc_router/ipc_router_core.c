@@ -1267,7 +1267,7 @@ void ipc_router_release_port(struct kref *ref)
 		release_pkt(pkt);
 	}
 	mutex_unlock(&port_ptr->port_rx_q_lock_lhc3);
-	wakeup_source_trash(&port_ptr->port_rx_ws);
+	wakeup_source_unregister(port_ptr->port_rx_ws);
 	if (port_ptr->endpoint)
 		sock_put(ipc_port_sk(port_ptr->endpoint));
 	kfree(port_ptr);

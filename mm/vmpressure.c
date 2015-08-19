@@ -131,7 +131,20 @@ static enum vmpressure_levels vmpressure_calc_level(unsigned long scanned,
 	pr_debug("%s: %3lu  (s: %lu  r: %lu)\n", __func__, pressure,
 		 scanned, reclaimed);
 
-	return vmpressure_level(pressure);
+	return pressure;
+}
+
+static unsigned long vmpressure_account_stall(unsigned long pressure,
+				unsigned long stall, unsigned long scanned)
+{
+	unsigned long scale;
+
+	if (pressure < 70)
+		return pressure;
+
+	scale = ((vmpressure_scale_max - pressure) * stall) / scanned;
+
+	return pressure + scale;
 }
 
 struct vmpressure_event {

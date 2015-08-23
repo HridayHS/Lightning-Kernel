@@ -160,6 +160,13 @@ config CPU_FREQ_DEFAULT_GOV_YANKACTIVE
         you to get a full dynamic cpu frequency capable system by simply
         loading your cpufreq low-level hardware driver, using the
         'yankactive' governor for latency-sensitive workloads.
+
+config CPU_FREQ_DEFAULT_GOV_PEGASUSQ
+	bool "pegasusq"
+	select CPU_FREQ_GOV_PEGASUSQ
+	help
+	Use the CPUFreq governor 'pegasusq' as default.
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -277,6 +284,9 @@ config CPU_FREQ_GOV_YANKACTIVE
        The governor is based on interactive with just different default settings
        and can be achieved using interactive with a script. This is added for
        simplification purposes for myself. 
+
+config CPU_FREQ_GOV_PEGASUSQ
+	tristate "'pegasusq' cpufreq policy governor"
 
 config CPU_FREQ_GOV_CONSERVATIVE
 	tristate "'conservative' cpufreq governor"

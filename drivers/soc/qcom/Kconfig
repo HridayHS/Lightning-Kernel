@@ -577,6 +577,13 @@ config THUNDERPLUG_CONTROL
 	  This driver uses powersuspend to take down the cpu cores
 	  on a octa core device.
 
+config BRICKED_HOTPLUG
+	   bool "Enable kernel based mpdecision"
+	   depends on MSM_RUN_QUEUE_STATS
+	   default y
+	   help
+		 This enables kernel based multi core control.
+      
 config INTELLI_PLUG
         bool "Enable intelli-plug cpu hotplug driver"
         default n
@@ -645,6 +652,10 @@ config ASMP
       Automatically hotplugs the multiple cpu cores on and off
       based on cpu load and suspend state
 	  
+config STATE_NOTIFIER
+        bool "State Notifier"
+	default y
+
 config MSM_HOTPLUG
 	bool "MSM hotplug driver"
 	depends on HOTPLUG_CPU

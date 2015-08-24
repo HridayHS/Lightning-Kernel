@@ -63,3 +63,11 @@ config ZEN_DECISION
 	  by disabling these services.
 
 	  If unsure, say N.
+
+config ASMP
+    bool "Multi-core automatic hotplug support"
+    depends on SMP
+    default n
+    help
+      Automatically hotplugs the multiple cpu cores on and off
+      based on cpu load and suspend state

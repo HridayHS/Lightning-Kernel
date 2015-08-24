@@ -571,6 +571,7 @@ config MSM_PERFORMANCE_HOTPLUG_ON
           compile out the nodes needed for core-control functionality through
           msm_performance.
 
+<<<<<<< HEAD
 config BRICKED_HOTPLUG
 	   bool "Enable kernel based mpdecision"
 	   depends on MSM_RUN_QUEUE_STATS
@@ -637,6 +638,10 @@ config ASMP
       Automatically hotplugs the multiple cpu cores on and off
       based on cpu load and suspend state
 	  
+config STATE_NOTIFIER
+        bool "State Notifier"
+	default y
+
 config MSM_HOTPLUG
 	bool "MSM hotplug driver"
 	depends on HOTPLUG_CPU

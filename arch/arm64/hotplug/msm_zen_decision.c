@@ -347,4 +347,4 @@ module_exit(zd_exit);
 MODULE_VERSION("2.0");
 MODULE_DESCRIPTION("Zen Decision - Kernel MSM Userspace Handler");
 MODULE_LICENSE("GPL v2");
-MODULE_AUTHOR("Brandon Berhent <bbedward@gmail.com>");msm_zen_decision.c
+MODULE_AUTHOR("Brandon Berhent <bbedward@gmail.com>");

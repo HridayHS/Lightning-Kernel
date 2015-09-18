@@ -590,13 +590,6 @@ config INTELLI_PLUG
         help
           Generic Intelli-plug cpu hotplug driver for ARM SOCs
 
-config BRICKED_HOTPLUG
-        bool "Enable kernel based mpdecision"
-	depends on MSM_RUN_QUEUE_STATS
-	default y
-	help
-          This enables kernel based multi core control.
-
 config MSM_HOTPLUG
 	bool "MSM hotplug driver"
 	depends on HOTPLUG_CPU

@@ -571,7 +571,6 @@ config MSM_PERFORMANCE_HOTPLUG_ON
           compile out the nodes needed for core-control functionality through
           msm_performance.
 
-<<<<<<< HEAD
 config BRICKED_HOTPLUG
 	   bool "Enable kernel based mpdecision"
 	   depends on MSM_RUN_QUEUE_STATS

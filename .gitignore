@@ -32,6 +32,11 @@ modules.builtin
 *.lzo
 *.patch
 *.gcno
+zImage
+Image
+dt.img
+sb.sh
+uber.sh
 
 #
 # Top-level generic files

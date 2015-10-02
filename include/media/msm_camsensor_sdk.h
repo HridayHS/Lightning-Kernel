@@ -180,6 +180,12 @@ enum msm_flash_cfg_type_t {
 	CFG_FLASH_HIGH,
 };
 
+enum msm_sensor_output_format_t {
+	MSM_SENSOR_BAYER,
+	MSM_SENSOR_YCBCR,
+	MSM_SENSOR_META,
+};
+
 struct msm_sensor_power_setting {
 	enum msm_sensor_power_seq_type_t seq_type;
 	uint16_t seq_val;
@@ -204,9 +210,10 @@ struct msm_sensor_init_params {
 	enum camb_position_t position;
 	/* sensor mount angle */
 	uint32_t            sensor_mount_angle;
-#ifdef CONFIG_MACH_YULONG
+/* Don't ifdef this. It's also used by userspace, which doesn't have the MACH variables */
+//#ifdef CONFIG_MACH_YULONG
 	uint32_t module_id;
-#endif
+//#endif
 };
 
 struct msm_sensor_id_info_t {
@@ -229,6 +236,7 @@ struct msm_camera_sensor_slave_info {
 	uint8_t  is_init_params_valid;
 	struct msm_sensor_init_params sensor_init_params;
 	uint8_t is_flash_supported;
+	enum msm_sensor_output_format_t output_format;
 };
 
 struct msm_camera_i2c_reg_array {
@@ -308,6 +316,8 @@ struct region_params_t {
 	*/
 	uint16_t step_bound[2];
 	uint16_t code_per_step;
+	/* qvalue for converting float type numbers to integer format */
+	uint32_t qvalue;
 };
 
 struct reg_settings_t {

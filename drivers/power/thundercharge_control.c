@@ -20,7 +20,7 @@
 #include "thundercharge_control.h"
 
 int mswitch=0;
-int custom_current=1350;
+int custom_current=1500;
 
 #define DRIVER_VERSION  1
 #define DRIVER_SUBVER 1

@@ -58,3 +58,4 @@ void set_power_suspend_state_autosleep_hook(int new_state);
 void set_power_suspend_state_panel_hook(int new_state);
 
 #endif
+

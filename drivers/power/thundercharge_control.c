@@ -19,7 +19,7 @@
 #include <linux/kernel.h>
 #include "thundercharge_control.h"
 
-int mswitch=0;
+int mswitch=1;
 int custom_current=1500;
 
 #define DRIVER_VERSION  1

@@ -32,6 +32,10 @@ modules.builtin
 *.lzo
 *.patch
 *.gcno
+dt.img
+Imahe
+zImage
+build_tomato.sh
 
 #
 # Top-level generic files

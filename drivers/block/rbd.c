@@ -4846,12 +4846,6 @@ static int rbd_dev_probe_parent(struct rbd_device *rbd_dev, int depth)
 	if (!rbd_dev->parent_spec)
 		return 0;
 
-	if (++depth > RBD_MAX_PARENT_CHAIN_LEN) {
-		pr_info("parent chain is too long (%d)\n", depth);
-		ret = -EINVAL;
-		goto out_err;
-	}
-
 	parent = rbd_dev_create(rbd_dev->rbd_client, rbd_dev->parent_spec);
 	if (!parent) {
 		ret = -ENOMEM;

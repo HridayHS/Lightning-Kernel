@@ -159,6 +159,9 @@ void start_bandwidth_timer(struct hrtimer *period_timer, ktime_t period)
 
 DEFINE_MUTEX(sched_domains_mutex);
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
+#ifdef CONFIG_INTELLI_HOTPLUG
+DEFINE_PER_CPU_SHARED_ALIGNED(struct nr_stats_s, runqueue_stats);
+#endif
 
 static void update_rq_clock_task(struct rq *rq, s64 delta);
 
@@ -1638,14 +1641,8 @@ static void update_cpu_busy_time(struct task_struct *p, struct rq *rq,
 		/* The IRQ busy time spanned multiple windows. Process the
 		 * busy time preceding the current window start first. */
 		delta = window_start - mark_start;
-		if (delta > window_size) {
+		if (delta > window_size)
 			delta = window_size;
-			/* If there's 1 or more full windows of IRQ busy time
-			 * then the entire prev_runnable_sum will be a window
-			 * of IRQ time - there should be no contribution from
-			 * anything else. */
-			rq->prev_runnable_sum = 0;
-		}
 		delta = scale_exec_time(delta, rq);
 		rq->prev_runnable_sum += delta;
 
@@ -2529,18 +2526,24 @@ static int cpufreq_notifier_trans(struct notifier_block *nb,
 {
 	struct cpufreq_freqs *freq = (struct cpufreq_freqs *)data;
 	unsigned int cpu = freq->cpu, new_freq = freq->new;
-	struct rq *rq = cpu_rq(cpu);
 	unsigned long flags;
+	int i;
 
 	if (val != CPUFREQ_POSTCHANGE)
 		return 0;
 
 	BUG_ON(!new_freq);
 
-	raw_spin_lock_irqsave(&rq->lock, flags);
-	update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_clock(), 0);
-	cpu_rq(cpu)->cur_freq = new_freq;
-	raw_spin_unlock_irqrestore(&rq->lock, flags);
+	if (cpu_rq(cpu)->cur_freq == new_freq)
+		return 0;
+
+	for_each_cpu(i, &cpu_rq(cpu)->freq_domain_cpumask) {
+		struct rq *rq = cpu_rq(i);
+		raw_spin_lock_irqsave(&rq->lock, flags);
+		update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_clock(), 0);
+		rq->cur_freq = new_freq;
+		raw_spin_unlock_irqrestore(&rq->lock, flags);
+	}
 
 	return 0;
 }
@@ -2877,7 +2880,7 @@ out:
 		 * leave kernel.
 		 */
 		if (p->mm && printk_ratelimit()) {
-			printk_sched("process %d (%s) no longer affine to cpu%d\n",
+			printk_deferred("process %d (%s) no longer affine to cpu%d\n",
 					task_pid_nr(p), p->comm, cpu);
 		}
 	}
@@ -3256,7 +3259,7 @@ static void try_to_wake_up_local(struct task_struct *p)
 	struct rq *rq = task_rq(p);
 
 	if (rq != this_rq() || p == current) {
-		printk_sched("%s: Failed to wakeup task %d (%s), rq = %p, this_rq = %p, p = %p, current = %p\n",
+		printk_deferred("%s: Failed to wakeup task %d (%s), rq = %p, this_rq = %p, p = %p, current = %p\n",
 			__func__, task_pid_nr(p), p->comm, rq,
 			this_rq(), p, current);
 		return;
@@ -3803,6 +3806,61 @@ unsigned long nr_iowait(void)
 
 	return sum;
 }
+
+#ifdef CONFIG_INTELLI_HOTPLUG
+unsigned long avg_nr_running(void)
+{
+	unsigned long i, sum = 0;
+	unsigned int seqcnt, ave_nr_running;
+
+	for_each_online_cpu(i) {
+		struct nr_stats_s *stats = &per_cpu(runqueue_stats, i);
+		struct rq *q = cpu_rq(i);
+
+		/*
+		 * Update average to avoid reading stalled value if there were
+		 * no run-queue changes for a long time. On the other hand if
+		 * the changes are happening right now, just read current value
+		 * directly.
+		 */
+		seqcnt = read_seqcount_begin(&stats->ave_seqcnt);
+		ave_nr_running = do_avg_nr_running(q);
+		if (read_seqcount_retry(&stats->ave_seqcnt, seqcnt)) {
+			read_seqcount_begin(&stats->ave_seqcnt);
+			ave_nr_running = stats->ave_nr_running;
+		}
+
+		sum += ave_nr_running;
+	}
+
+	return sum;
+}
+EXPORT_SYMBOL(avg_nr_running);
+
+unsigned long avg_cpu_nr_running(unsigned int cpu)
+{
+	unsigned int seqcnt, ave_nr_running;
+
+	struct nr_stats_s *stats = &per_cpu(runqueue_stats, cpu);
+	struct rq *q = cpu_rq(cpu);
+
+	/*
+	 * Update average to avoid reading stalled value if there were
+	 * no run-queue changes for a long time. On the other hand if
+	 * the changes are happening right now, just read current value
+	 * directly.
+	 */
+	seqcnt = read_seqcount_begin(&stats->ave_seqcnt);
+	ave_nr_running = do_avg_nr_running(q);
+	if (read_seqcount_retry(&stats->ave_seqcnt, seqcnt)) {
+		read_seqcount_begin(&stats->ave_seqcnt);
+		ave_nr_running = stats->ave_nr_running;
+	}
+
+	return ave_nr_running;
+}
+EXPORT_SYMBOL(avg_cpu_nr_running);
+#endif
 
 unsigned long nr_iowait_cpu(int cpu)
 {
@@ -9086,7 +9144,6 @@ void __init sched_init(void)
 		rq->hmp_flags = 0;
 		rq->mostly_idle_load = pct_to_real(20);
 		rq->mostly_idle_nr_run = 3;
-		rq->mostly_idle_freq = 0;
 #ifdef CONFIG_SCHED_FREQ_INPUT
 		rq->old_busy_time = 0;
 		rq->curr_runnable_sum = rq->prev_runnable_sum = 0;
@@ -9114,10 +9171,6 @@ void __init sched_init(void)
 
 #ifdef CONFIG_PREEMPT_NOTIFIERS
 	INIT_HLIST_HEAD(&init_task.preempt_notifiers);
-#endif
-
-#ifdef CONFIG_RT_MUTEXES
-	plist_head_init(&init_task.pi_waiters);
 #endif
 
 	/*

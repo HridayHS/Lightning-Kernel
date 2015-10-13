@@ -45,6 +45,7 @@
 #include <linux/syscore_ops.h>
 #include <linux/msm_rtb.h>
 
+#include <asm/cputype.h>
 #include <asm/irq.h>
 #include <asm/exception.h>
 #include <asm/smp_plat.h>
@@ -490,12 +491,13 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
 	} while (1);
 }
 
-static void gic_handle_cascade_irq(unsigned int irq, struct irq_desc *desc)
+static bool gic_handle_cascade_irq(unsigned int irq, struct irq_desc *desc)
 {
 	struct gic_chip_data *chip_data = irq_get_handler_data(irq);
 	struct irq_chip *chip = irq_get_chip(irq);
 	unsigned int cascade_irq, gic_irq;
 	unsigned long status;
+	int handled = false;
 
 	chained_irq_enter(chip, desc);
 
@@ -511,10 +513,12 @@ static void gic_handle_cascade_irq(unsigned int irq, struct irq_desc *desc)
 	if (unlikely(gic_irq < 32 || gic_irq > 1020))
 		handle_bad_irq(cascade_irq, desc);
 	else
-		generic_handle_irq(cascade_irq);
+		handled = generic_handle_irq(cascade_irq);
+
 
  out:
 	chained_irq_exit(chip, desc);
+	return handled == true;
 }
 
 static struct irq_chip gic_chip = {
@@ -1009,7 +1013,9 @@ void __init gic_init_bases(unsigned int gic_nr, int irq_start,
 		}
 
 		for_each_possible_cpu(cpu) {
-			unsigned long offset = percpu_offset * cpu_logical_map(cpu);
+			u32 mpidr = cpu_logical_map(cpu);
+			u32 core_id = MPIDR_AFFINITY_LEVEL(mpidr, 0);
+			unsigned long offset = percpu_offset * core_id;
 			*per_cpu_ptr(gic->dist_base.percpu_base, cpu) = dist_base + offset;
 			*per_cpu_ptr(gic->cpu_base.percpu_base, cpu) = cpu_base + offset;
 		}
@@ -1113,6 +1119,7 @@ int __init gic_of_init(struct device_node *node, struct device_node *parent)
 }
 IRQCHIP_DECLARE(cortex_a15_gic, "arm,cortex-a15-gic", gic_of_init);
 IRQCHIP_DECLARE(cortex_a9_gic, "arm,cortex-a9-gic", gic_of_init);
+IRQCHIP_DECLARE(cortex_a7_gic, "arm,cortex-a7-gic", gic_of_init);
 IRQCHIP_DECLARE(msm_8660_qgic, "qcom,msm-8660-qgic", gic_of_init);
 IRQCHIP_DECLARE(msm_qgic2, "qcom,msm-qgic2", gic_of_init);
 

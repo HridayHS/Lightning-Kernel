@@ -17,6 +17,7 @@
 
 enum {
 	CSD_FLAG_LOCK		= 0x01,
+	CSD_FLAG_WAIT		= 0x02,
 };
 
 struct call_function_data {
@@ -124,7 +125,7 @@ static void csd_lock(struct call_single_data *csd)
 
 static void csd_unlock(struct call_single_data *csd)
 {
-	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
+	WARN_ON((csd->flags & CSD_FLAG_WAIT) && !(csd->flags & CSD_FLAG_LOCK));
 
 	/*
 	 * ensure we're all done before releasing data:
@@ -145,6 +146,9 @@ void generic_exec_single(int cpu, struct call_single_data *csd, int wait)
 	struct call_single_queue *dst = &per_cpu(call_single_queue, cpu);
 	unsigned long flags;
 	int ipi;
+
+	if (wait)
+		csd->flags |= CSD_FLAG_WAIT;
 
 	raw_spin_lock_irqsave(&dst->lock, flags);
 	ipi = list_empty(&dst->list);
@@ -690,7 +694,7 @@ void on_each_cpu_cond(bool (*cond_func)(int cpu, void *info),
 			if (cond_func(cpu, info)) {
 				ret = smp_call_function_single(cpu, func,
 								info, wait);
-				WARN_ON_ONCE(!ret);
+				WARN_ON_ONCE(ret);
 			}
 		preempt_enable();
 	}

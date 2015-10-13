@@ -1266,15 +1266,19 @@ static ssize_t store_use_sched_load(
 
 	if (tunables->use_sched_load == (bool) val)
 		return count;
+
+	tunables->use_sched_load = val;
+
 	if (val)
 		ret = cpufreq_interactive_enable_sched_input(tunables);
 	else
 		ret = cpufreq_interactive_disable_sched_input(tunables);
 
-	if (ret)
+	if (ret) {
+		tunables->use_sched_load = !val;
 		return ret;
+	}
 
-	tunables->use_sched_load = val;
 	return count;
 }
 
@@ -1688,7 +1692,6 @@ static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 	case CPUFREQ_GOV_LIMITS:
 		__cpufreq_driver_target(policy,
 				policy->cur, CPUFREQ_RELATION_L);
-
 		for_each_cpu(j, policy->cpus) {
 			pcpu = &per_cpu(cpuinfo, j);
 

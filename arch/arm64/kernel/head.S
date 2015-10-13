@@ -34,6 +34,7 @@
 #include <asm/pgtable.h>
 #include <asm/page.h>
 #include <asm/virt.h>
+#include "sp-adj-macros.S"
 
 /*
  * swapper_pg_dir is the virtual address of the initial page table. We place
@@ -539,6 +540,11 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2
 #endif
 
+	/* EL2 debug */
+	mrs	x0, pmcr_el0			// Disable debug access traps
+	ubfx	x0, x0, #11, #5			// to EL2 and allow access to
+	msr	mdcr_el2, x0			// all PMU counters from EL1
+
 	/* Stage-2 translation */
 	msr	vttbr_el2, xzr
 
@@ -677,6 +683,7 @@ cpu_resume_after_mmu:
 	ldp	x25, x26, [sp, #64]
 	ldp	x27, x28, [sp, #80]
 	ldp	x29, lr, [sp], #96
+	restore_sp_from_page1 x3
 	ret
 ENDPROC(cpu_resume_after_mmu)
 

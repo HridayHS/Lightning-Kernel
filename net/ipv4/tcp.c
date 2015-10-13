@@ -1076,7 +1076,7 @@ int tcp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	if (unlikely(tp->repair)) {
 		if (tp->repair_queue == TCP_RECV_QUEUE) {
 			copied = tcp_send_rcvq(sk, msg, size);
-			goto out;
+			goto out_nopush;
 		}
 
 		err = -EINVAL;
@@ -1249,6 +1249,7 @@ wait_for_memory:
 out:
 	if (copied)
 		tcp_push(sk, flags, mss_now, tp->nonagle);
+out_nopush:
 	release_sock(sk);
 
 	if (copied + copied_syn)
@@ -3583,14 +3584,17 @@ restart:
 			sock_hold(sk);
 			spin_unlock_bh(lock);
 
+			lock_sock(sk);
+			// TODO:
+			// Check for SOCK_DEAD again, it could have changed.
+			// Add a write barrier, see tcp_reset().
 			local_bh_disable();
-			bh_lock_sock(sk);
 			sk->sk_err = ETIMEDOUT;
 			sk->sk_error_report(sk);
 
 			tcp_done(sk);
-			bh_unlock_sock(sk);
 			local_bh_enable();
+			release_sock(sk);
 			sock_put(sk);
 
 			goto restart;

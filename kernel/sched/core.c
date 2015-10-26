@@ -2533,18 +2533,24 @@ static int cpufreq_notifier_trans(struct notifier_block *nb,
 {
 	struct cpufreq_freqs *freq = (struct cpufreq_freqs *)data;
 	unsigned int cpu = freq->cpu, new_freq = freq->new;
-	struct rq *rq = cpu_rq(cpu);
 	unsigned long flags;
+	int i;
 
 	if (val != CPUFREQ_POSTCHANGE)
 		return 0;
 
 	BUG_ON(!new_freq);
 
-	raw_spin_lock_irqsave(&rq->lock, flags);
-	update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_clock(), 0);
-	cpu_rq(cpu)->cur_freq = new_freq;
-	raw_spin_unlock_irqrestore(&rq->lock, flags);
+	if (cpu_rq(cpu)->cur_freq == new_freq)
+		return 0;
+
+	for_each_cpu(i, &cpu_rq(cpu)->freq_domain_cpumask) {
+		struct rq *rq = cpu_rq(i);
+		raw_spin_lock_irqsave(&rq->lock, flags);
+		update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_clock(), 0);
+		rq->cur_freq = new_freq;
+		raw_spin_unlock_irqrestore(&rq->lock, flags);
+	}
 
 	return 0;
 }
@@ -2881,7 +2887,7 @@ out:
 		 * leave kernel.
 		 */
 		if (p->mm && printk_ratelimit()) {
-			printk_sched("process %d (%s) no longer affine to cpu%d\n",
+			printk_deferred("process %d (%s) no longer affine to cpu%d\n",
 					task_pid_nr(p), p->comm, cpu);
 		}
 	}
@@ -3260,7 +3266,7 @@ static void try_to_wake_up_local(struct task_struct *p)
 	struct rq *rq = task_rq(p);
 
 	if (rq != this_rq() || p == current) {
-		printk_sched("%s: Failed to wakeup task %d (%s), rq = %p, this_rq = %p, p = %p, current = %p\n",
+		printk_deferred("%s: Failed to wakeup task %d (%s), rq = %p, this_rq = %p, p = %p, current = %p\n",
 			__func__, task_pid_nr(p), p->comm, rq,
 			this_rq(), p, current);
 		return;

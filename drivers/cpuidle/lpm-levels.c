@@ -107,7 +107,7 @@ module_param_named(
 	print_parsed_dt, print_parsed_dt, bool, S_IRUGO | S_IWUSR | S_IWGRP
 );
 
-static bool sleep_disabled;
+static bool sleep_disabled = true;
 module_param_named(sleep_disabled,
 	sleep_disabled, bool, S_IRUGO | S_IWUSR | S_IWGRP);
 
@@ -831,6 +831,8 @@ static void register_cpu_lpm_stats(struct lpm_cpu *cpu,
 
 	lpm_stats_config_level("cpu", level_name, cpu->nlevels,
 			parent->stats, &parent->child_cpus);
+
+	kfree(level_name);
 }
 
 static void register_cluster_lpm_stats(struct lpm_cluster *cl,

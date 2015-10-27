@@ -202,7 +202,7 @@ static void lightning_check_cpu(struct cpufreq_lightning_cpuinfo *this_lightning
 	unsigned int min_freq;
 	unsigned int max_freq;
 	u64 cur_wall_tim, cur_idle_time;
-	unsigned int wall_time, idle_time;
+	unsigned int wall_time, idle_time, cur_wall_time;
 	unsigned int index = 0;
 	unsigned int next_freq = 0;
 	int cur_load = -1;

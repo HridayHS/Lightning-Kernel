@@ -19,6 +19,7 @@
 #include <linux/tick.h>
 #include <linux/ktime.h>
 #include <linux/sched.h>
+#include "cpufreq_governor.h"
 
 /*
  * dbs is used in this file as a shortform for demandbased switching
@@ -87,6 +88,8 @@ static ssize_t show_##file_name						\
 	return sprintf(buf, "%d\n", atomic_read(&lightning_tuners_ins.object));		\
 }
 show_one(sampling_rate, sampling_rate);
+static struct common_dbs_datas;
+static DEFINE_PER_CPU(struct ex_cpu_dbs_info_s, ex_cpu_dbs_info);
 
 static ssize_t show_cpucore_table(struct kobject *kobj,
 				struct attribute *attr, char *buf)
@@ -98,6 +101,25 @@ static ssize_t show_cpucore_table(struct kobject *kobj,
 		count += sprintf(&buf[count], "%d ", i);
 	}
 	count += sprintf(&buf[count], "\n");
+
+	return count;
+}
+
+static ssize_t store_powersave(struct dbs_data *dbs_data, const char *buf,
+		size_t count)
+{
+	struct ex_dbs_tuners *ex_tuners = dbs_data->tuners;
+	unsigned int input;
+	int ret;
+	ret = sscanf(buf, "%u", &input);
+
+	if (ret != 1 || input > 1)
+		return -EINVAL;
+
+	if (input == 0)
+		ex_tuners->powersave = input;
+	else if (input == 1)
+		ex_tuners->powersave = 3;
 
 	return count;
 }
@@ -201,7 +223,7 @@ static void lightning_check_cpu(struct cpufreq_lightning_cpuinfo *this_lightning
 	struct cpufreq_policy *cpu_policy;
 	unsigned int min_freq;
 	unsigned int max_freq;
-	u64 cur_wall_tim, cur_idle_time;
+	unsigned int cur_idle_time;
 	unsigned int wall_time, idle_time, cur_wall_time;
 	unsigned int index = 0;
 	unsigned int next_freq = 0;

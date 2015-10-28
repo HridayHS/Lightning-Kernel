@@ -21,7 +21,7 @@
 
 #define ENABLED             1
 #define AC_CURRENT          1400
-#define USB_CURRENT         500
+#define USB_CURRENT         1000
 #define MAX_VBUS_CURRENT    1500
 #define THUNDERCHARGE       "thundercharge"
 

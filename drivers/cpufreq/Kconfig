@@ -212,6 +212,10 @@ config CPU_FREQ_DEFAULT_GOV_BARRY_ALLEN
 	  loading your cpufreq low-level hardware driver, using the
 	  'barry_allen' governor for latency-sensitive workloads.
 
+config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
+  bool "intellidemand"
+  select CPU_FREQ_GOV_INTELLIDEMAND
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -320,21 +324,6 @@ config CPU_FREQ_GOV_HYPER
         'hyper' - A tweaked "ondemand" based smart and smooth optimized governor!
        
         If in doubt, say N.
-
-config CPU_FREQ_GOV_BLU_ACTIVE
-        tristate "'blu_active' cpufreq policy governor"
-        help
-          'blu_active' - This driver adds a dynamic cpufreq policy governor
-           designed for latency-sensitive workloads.
-
-           This governor attempts to reduce the latency of clock
-           increases so that the system is more responsive to
-           interactive workloads.
-
-           To compile this driver as a module, choose M here: the
-           module will be called cpufreq_blu_active.
-          
-           If in doubt, say N.
         
 config CPU_FREQ_GOV_YANKACTIVE
        tristate "'yankactive' cpufreq policy governor"
@@ -414,6 +403,10 @@ config CPU_FREQ_GOV_BARRY_ALLEN
 
 	  If in doubt, say N. 	
 
+config CPU_FREQ_GOV_INTELLIDEMAND
+	tristate "'intellidemand' cpufreq governor"
+	depends on CPU_FREQ
+
 config CPU_BOOST
 	tristate "Event base short term CPU freq boost"
 	depends on CPU_FREQ
@@ -427,10 +420,6 @@ config CPU_BOOST
 	  
 config CPU_FREQ_GOV_INTELLIACTIVE
 	tristate "'intelliactive' cpufreq governor"
-	depends on CPU_FREQ
-
-config CPU_FREQ_GOV_INTELLIDEMAND
-	tristate "'intellidemand' cpufreq governor"
 	depends on CPU_FREQ
 	
 config CPU_FREQ_GOV_HYPER
@@ -481,6 +470,7 @@ config CPU_FREQ_GOV_SMARTMAX
   select CPU_FREQ_TABLE	
   help	
     'smartmax' combined ondemand and smartass2
+
 
 config CPU_BOOST
 	tristate "Event base short term CPU freq boost"

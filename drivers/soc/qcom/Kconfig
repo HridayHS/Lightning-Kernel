@@ -670,6 +670,12 @@ config MSM_SLEEPER
  	help
 	  CPU hotplug driver
 
+config ALUCARD_HOTPLUG
+	bool "Enable alucard-hotplug cpu hotplug driver"
+	default n
+	help
+	  Generic Alucard-hotplug cpu hotplug driver for ARM SOCs
+
 source "drivers/soc/qcom/memshare/Kconfig"
 
 endif # ARCH_MSM

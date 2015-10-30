@@ -233,22 +233,22 @@ enum mxt_device_state { INIT, APPMODE, BOOTLOADER };
 #define MXT_CTE_ACTVGCAFDEPTH	4
 #define MXT_CTE_VOLTAGE		5
 
-#define MXT_VOLTAGE_DEFAULT	2700000
+#define MXT_VOLTAGE_DEFAULT	2600000
 #define MXT_VOLTAGE_STEP	10000
 
 /* Analog voltage @2.7 V */
-#define MXT_VTG_MIN_UV		2700000
-#define MXT_VTG_MAX_UV		3300000
+#define MXT_VTG_MIN_UV		2600000
+#define MXT_VTG_MAX_UV		3200000
 #define MXT_ACTIVE_LOAD_UA	15000
 #define MXT_LPM_LOAD_UA		10
 /* Digital voltage @1.8 V */
-#define MXT_VTG_DIG_MIN_UV	1800000
-#define MXT_VTG_DIG_MAX_UV	1800000
+#define MXT_VTG_DIG_MIN_UV	1700000
+#define MXT_VTG_DIG_MAX_UV	1700000
 #define MXT_ACTIVE_LOAD_DIG_UA	10000
 #define MXT_LPM_LOAD_DIG_UA	10
 
-#define MXT_I2C_VTG_MIN_UV	1800000
-#define MXT_I2C_VTG_MAX_UV	1800000
+#define MXT_I2C_VTG_MIN_UV	1700000
+#define MXT_I2C_VTG_MAX_UV	1700000
 #define MXT_I2C_LOAD_UA		10000
 #define MXT_I2C_LPM_LOAD_UA	10
 
@@ -278,7 +278,7 @@ enum mxt_device_state { INIT, APPMODE, BOOTLOADER };
 
 #define MXT_FWRESET_TIME	1000	/* msec */
 
-#define MXT_WAKE_TIME		25
+#define MXT_WAKE_TIME		5
 
 /* Command to unlock bootloader */
 #define MXT_UNLOCK_CMD_MSB	0xaa

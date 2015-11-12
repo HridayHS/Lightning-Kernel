@@ -1459,29 +1459,6 @@ static ssize_t gsl_sysfs_tpgesture_show(struct device *dev,
 static ssize_t gsl_sysfs_tpgesturet_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
-<<<<<<< HEAD
-	struct gsl_ts_data *ts = ddata;
-	struct i2c_client *gsl_client = ts->client;
-	int old_gesture_flag;
-
-	mutex_lock(&gsl_wake_config_lock);
-	old_gesture_flag = gsl_gesture_flag;
-	if(buf[0] == '0'){
-		gsl_gesture_flag = 0;  
-		if (old_gesture_flag)
-			disable_irq_wake(gsl_client->irq);
-	}else if(buf[0] == '1'){
-		gsl_gesture_flag = 1;
-		if (!old_gesture_flag)
-			enable_irq_wake(gsl_client->irq);
-	}else if(buf[0] == '2'){
-	//enable character gesture
-		gsl_gesture_flag = 2;
-		if (!old_gesture_flag)
-			enable_irq_wake(gsl_client->irq);
-	}
-	mutex_unlock(&gsl_wake_config_lock);
-=======
 	mutex_lock(&ddata->hw_lock);
 	if(buf[0] == '0'){
 		gsl_gesture_flag = 0;  
@@ -1492,7 +1469,6 @@ static ssize_t gsl_sysfs_tpgesturet_store(struct device *dev,
 		gsl_gesture_flag = 2;
 	}
 	mutex_unlock(&ddata->hw_lock);
->>>>>>> cm/cm-12.1-amss-1.0.2
 
 	return count;
 }

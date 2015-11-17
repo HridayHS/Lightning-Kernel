@@ -645,14 +645,14 @@ config ASMP
       Automatically hotplugs the multiple cpu cores on and off
       based on cpu load and suspend state
 
+if CPU_FREQ_MSM
+
 config MSM_CPU_FREQ_SET_MIN_MAX
 	bool "Set Min/Max CPU frequencies."
 	default n
 	help
 	  Allow setting min and max CPU frequencies. Sysfs can be used
 	  to override these values.
-
-if CPU_FREQ_MSM
 
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"

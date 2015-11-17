@@ -44,6 +44,7 @@
 
 #define MSM_SLIM_AUTOSUSPEND		MSEC_PER_SEC
 
+#define SLIM_RX_MSGQ_TIMEOUT_VAL	0x10000
 /*
  * Messages that can be received simultaneously:
  * Client reads, LPASS master responses, announcement messages
@@ -215,7 +216,7 @@ struct msm_slim_qmi {
 	struct work_struct		ssr_up;
 };
 
-struct msm_slim_mdm {
+struct msm_slim_ss {
 	struct notifier_block nb;
 	void *ssr;
 	enum msm_ctrl_state state;
@@ -256,7 +257,7 @@ struct msm_slim_ctrl {
 	struct clk		*rclk;
 	struct clk		*hclk;
 	struct mutex		tx_lock;
-	struct mutex		tx_buf_lock;
+	spinlock_t		tx_buf_lock;
 	u8			pgdla;
 	enum msm_slim_msgq	use_rx_msgqs;
 	enum msm_slim_msgq	use_tx_msgqs;
@@ -270,11 +271,13 @@ struct msm_slim_ctrl {
 	u32			ver;
 	struct msm_slim_qmi	qmi;
 	struct msm_slim_pdata	pdata;
-	struct msm_slim_mdm	mdm;
+	struct msm_slim_ss	ext_mdm;
+	struct msm_slim_ss	dsp;
 	int			default_ipc_log_mask;
 	int			ipc_log_mask;
 	bool			sysfs_created;
 	void			*ipc_slimbus_log;
+	void (*rx_slim)(struct msm_slim_ctrl *dev, u8 *buf);
 };
 
 struct msm_sat_chan {
@@ -378,15 +381,14 @@ int msm_send_msg_buf(struct msm_slim_ctrl *dev, u32 *buf, u8 len, u32 tx_reg);
 u32 *msm_get_msg_buf(struct msm_slim_ctrl *dev, int len,
 			struct completion *comp);
 u32 *msm_slim_manage_tx_msgq(struct msm_slim_ctrl *dev, bool getbuf,
-			struct completion *comp);
+			struct completion *comp, int err);
 int msm_slim_rx_msgq_get(struct msm_slim_ctrl *dev, u32 *data, int offset);
 int msm_slim_sps_init(struct msm_slim_ctrl *dev, struct resource *bam_mem,
 			u32 pipe_reg, bool remote);
 void msm_slim_sps_exit(struct msm_slim_ctrl *dev, bool dereg);
 
 int msm_slim_connect_endp(struct msm_slim_ctrl *dev,
-				struct msm_slim_endp *endpoint,
-				struct completion *notify);
+				struct msm_slim_endp *endpoint);
 void msm_slim_disconnect_endp(struct msm_slim_ctrl *dev,
 					struct msm_slim_endp *endpoint,
 					enum msm_slim_msgq *msgq_flag);

@@ -511,10 +511,12 @@ static int msm_iommu_sec_ptbl_map(struct msm_iommu_drvdata *iommu_drvdata,
 			unsigned long va, phys_addr_t pa, size_t len)
 {
 	struct msm_scm_map2_req map;
-	void *flush_va;
-	phys_addr_t flush_pa;
+	void *flush_va, *flush_va_end;
 	int ret = 0;
 
+	if (!IS_ALIGNED(va, SZ_1M) || !IS_ALIGNED(len, SZ_1M) ||
+		!IS_ALIGNED(pa, SZ_1M))
+		return -EINVAL;
 	map.plist.list = virt_to_phys(&pa);
 	map.plist.list_size = 1;
 	map.plist.size = len;
@@ -524,19 +526,17 @@ static int msm_iommu_sec_ptbl_map(struct msm_iommu_drvdata *iommu_drvdata,
 	map.info.size = len;
 
 	flush_va = &pa;
-	flush_pa = virt_to_phys(&pa);
+	flush_va_end = (void *)
+		(((unsigned long) flush_va) + sizeof(phys_addr_t));
 
 	/*
 	 * Ensure that the buffer is in RAM by the time it gets to TZ
 	 */
-	dmac_clean_range(flush_va, flush_va + len);
+	dmac_clean_range(flush_va, flush_va_end);
 
 	ret = msm_iommu_sec_map2(&map);
 	if (ret)
 		return -EINVAL;
-
-	/* Invalidate cache since TZ touched this address range */
-	dmac_inv_range(flush_va, flush_va + len);
 
 	return 0;
 }
@@ -562,9 +562,12 @@ static int msm_iommu_sec_ptbl_map_range(struct msm_iommu_drvdata *iommu_drvdata,
 	struct msm_scm_map2_req map;
 	unsigned int *pa_list = 0;
 	unsigned int pa, cnt;
-	void *flush_va;
+	void *flush_va, *flush_va_end;
 	unsigned int offset = 0, chunk_offset = 0;
 	int ret;
+
+	if (!IS_ALIGNED(va, SZ_1M) || !IS_ALIGNED(len, SZ_1M))
+		return -EINVAL;
 
 	map.info.id = iommu_drvdata->sec_id;
 	map.info.ctx_id = ctx_drvdata->num;
@@ -572,16 +575,27 @@ static int msm_iommu_sec_ptbl_map_range(struct msm_iommu_drvdata *iommu_drvdata,
 	map.info.size = len;
 
 	if (sg->length == len) {
+		/*
+		 * physical address for secure mapping needs
+		 * to be 1MB aligned
+		 */
 		pa = get_phys_addr(sg);
+		if (!IS_ALIGNED(pa, SZ_1M))
+			return -EINVAL;
 		map.plist.list = virt_to_phys(&pa);
 		map.plist.list_size = 1;
 		map.plist.size = len;
 		flush_va = &pa;
 	} else {
 		sgiter = sg;
+		if (!IS_ALIGNED(sgiter->length, SZ_1M))
+			return -EINVAL;
 		cnt = sg->length / SZ_1M;
-		while ((sgiter = sg_next(sgiter)))
+		while ((sgiter = sg_next(sgiter))) {
+			if (!IS_ALIGNED(sgiter->length, SZ_1M))
+				return -EINVAL;
 			cnt += sgiter->length / SZ_1M;
+		}
 
 		pa_list = kmalloc(cnt * sizeof(*pa_list), GFP_KERNEL);
 		if (!pa_list)
@@ -590,9 +604,12 @@ static int msm_iommu_sec_ptbl_map_range(struct msm_iommu_drvdata *iommu_drvdata,
 		sgiter = sg;
 		cnt = 0;
 		pa = get_phys_addr(sgiter);
+		if (!IS_ALIGNED(pa, SZ_1M)) {
+			kfree(pa_list);
+			return -EINVAL;
+		}
 		while (offset < len) {
-			pa += chunk_offset;
-			pa_list[cnt] = pa;
+			pa_list[cnt] = pa + chunk_offset;
 			chunk_offset += SZ_1M;
 			offset += SZ_1M;
 			cnt++;
@@ -616,8 +633,9 @@ static int msm_iommu_sec_ptbl_map_range(struct msm_iommu_drvdata *iommu_drvdata,
 	/*
 	 * Ensure that the buffer is in RAM by the time it gets to TZ
 	 */
-	dmac_clean_range(flush_va,
-		flush_va + sizeof(unsigned long) * map.plist.list_size);
+	flush_va_end = (void *) (((unsigned long) flush_va) +
+			(map.plist.list_size * sizeof(*pa_list)));
+	dmac_clean_range(flush_va, flush_va_end);
 
 	ret = msm_iommu_sec_map2(&map);
 	kfree(pa_list);
@@ -636,6 +654,8 @@ static int msm_iommu_sec_ptbl_unmap(struct msm_iommu_drvdata *iommu_drvdata,
 	int ret, scm_ret;
 	struct scm_desc desc = {0};
 
+	if (!IS_ALIGNED(va, SZ_1M) || !IS_ALIGNED(len, SZ_1M))
+		return -EINVAL;
 	desc.args[0] = unmap.info.id = iommu_drvdata->sec_id;
 	desc.args[1] = unmap.info.ctx_id = ctx_drvdata->num;
 	desc.args[2] = unmap.info.va = va;
@@ -875,6 +895,9 @@ static int msm_iommu_unmap_range(struct iommu_domain *domain, unsigned int va,
 	struct msm_iommu_drvdata *iommu_drvdata;
 	struct msm_iommu_ctx_drvdata *ctx_drvdata;
 	int ret = -EINVAL;
+
+	if (!IS_ALIGNED(va, SZ_1M) || !IS_ALIGNED(len, SZ_1M))
+		return -EINVAL;
 
 	iommu_access_ops->iommu_lock_acquire(0);
 

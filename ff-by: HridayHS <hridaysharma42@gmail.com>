@@ -1,0 +1,229 @@
+[33mcommit e4ac81a9abb88aa218ecceeff334f627f26d00fa[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Thu Nov 19 20:24:15 2015 +0530
+
+    f2fs: update 3.10
+
+[33mcommit 93b7d515ec58aa9f4b55df82dbf34fc120dbf506[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 03:30:15 2015 +0530
+
+    dts: fix syntax error
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit fdfedfd59a5f9b64955fa6c672d761ae322f141d[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:27:42 2015 +0530
+
+    defconfig: update
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit f9d64168d9dcb9230a5b190e1d717c8355761687[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:27:18 2015 +0530
+
+    defconfig: enable CLUSTER_PLUG
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 9cab398c7360dc08f3c2d915e3269bb20e482983[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:20:27 2015 +0530
+
+    cluster_plug: hint compiler about correct section cpu init function
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 5c04e66b1df2dc623cc14c69dfdc1064d4c3ab3a[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:19:26 2015 +0530
+
+    cluster_plug: improve Power HAL tolerance
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 443993c1ac797ad68d55b31016db4aa9ad23a1c7[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:18:10 2015 +0530
+
+    hotplug: cluster_plug hotplug driver
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 5360eb2dd7d63277ca35943725bbeece83a27331[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Wed Nov 18 00:15:31 2015 +0530
+
+    soc/qcom/kconfig: rewrite
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 754581dd4344429e693eb3b000a4eabcdeaeeb6f[m
+Author: Somesh Thakur <someshthakur33@gmail.com>
+Date:   Tue Nov 17 23:08:03 2015 +0530
+
+    Fix: dt.img for OC 2.0Ghz
+    
+    Fixed OC of 2.0Ghz in dt.img.
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 05d192f14bb5baa00bf2ae82eaa4e5eac1bd7bbd[m
+Merge: d5d8914 d333e3d
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Tue Nov 17 19:47:58 2015 +0530
+
+    Merge remote-tracking branch 'cm/cm-12.1-amss-1.0.2' into yureka-testbuilds
+
+[33mcommit d5d8914bcac9abaca43f71457235f7780e7b6e34[m
+Author: Pranav Vashi <neobuddy89@gmail.com>
+Date:   Sun Nov 15 01:57:15 2015 +0530
+
+    drivers: state_notifier: Add toggle to enable driver
+    
+    * May required to debug SOD on some devices.
+    * Also get rid of FB notifiers.
+    
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 272d0ecb78674aba6d6eb2acee441078ed3a370e[m
+Author: HridayHS <hridaysharma42@gmail.com>
+Date:   Tue Nov 17 17:29:13 2015 +0530
+
+    defconfig: update
+    
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 7a36b5db5dc23d2c6d68c90c52d54aadac0090ff[m
+Author: Riley Andrews <riandrews@google.com>
+Date:   Fri Sep 4 15:13:56 2015 -0700
+
+    Turn off trace_printk in vidc's dprink.
+    
+    This saves us 8MB of memory + ctx switch overhead.
+    
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit c711e9d40debef535c44776a0d087146b58671e2[m
+Author: alucard24 <dmbaoh2@gmail.com>
+Date:   Fri Oct 30 10:27:13 2015 +0100
+
+    drivers: state_notifier: use singlethread workqueue
+    
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+    
+    Conflicts:
+    	drivers/soc/qcom/state_notifier.c
+
+[33mcommit bc978d16ecb110c9c64e291a475cea7fe007d955[m
+Author: Krzysztof Kolasa <kkolasa@winsoft.pl>
+Date:   Sun May 3 22:58:59 2015 -0500
+
+    lz4: fix system halt at boot kernel on x86_64
+    
+    Sometimes, on x86_64, decompression fails with the following
+    error:
+    
+    Decompressing Linux...
+    
+    Decoding failed
+    
+     -- System halted
+    
+    This condition is not needed for a 64bit kernel(from commit d5e7caf):
+    
+    if( ... ||
+        (op + COPYLENGTH) > oend)
+        goto _output_error
+    
+    macro LZ4_SECURE_COPY() tests op and does not copy any data
+    when op exceeds the value.
+    
+    added by analogy to lz4_uncompress_unknownoutputsize(...)
+    
+    Signed-off-by: Krzysztof Kolasa <kkolasa@winsoft.pl>
+    Tested-by: Alexander Kuleshov <kuleshovmail@gmail.com>
+    Tested-by: Caleb Jorden <cjorden@gmail.com>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 80b9955e12afd8fe638f6a45003a1b8765f709e2[m
+Author: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Date:   Tue Feb 10 11:12:21 2015 +0100
+
+    lib/lz4: Pull out constant tables
+    
+    There's no reason to allocate the dec{32,64}table on the stack; it
+    just wastes a bunch of instructions setting them up and, of course,
+    also consumes quite a bit of stack. Using size_t for such small
+    integers is a little excessive.
+    
+    $ scripts/bloat-o-meter /tmp/built-in.o lib/built-in.o
+    add/remove: 2/2 grow/shrink: 2/0 up/down: 1304/-1548 (-244)
+    function                                     old     new   delta
+    lz4_decompress_unknownoutputsize              55     718    +663
+    lz4_decompress                                55     632    +577
+    dec64table                                     -      32     +32
+    dec32table                                     -      32     +32
+    lz4_uncompress                               747       -    -747
+    lz4_uncompress_unknownoutputsize             801       -    -801
+    
+    The now inlined lz4_uncompress functions used to have a stack
+    footprint of 176 bytes (according to -fstack-usage); their inlinees
+    have increased their stack use from 32 bytes to 48 and 80 bytes,
+    respectively.
+    
+    Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 385b4c4ecd2e9a2931c1c7aa6a9997f05491581b[m
+Author: JeHyeon Yeon <tom.yeon@windriver.com>
+Date:   Mon Mar 16 01:03:19 2015 +0000
+
+    LZ4 : fix the data abort issue
+    
+    If the part of the compression data are corrupted, or the compression
+    data is totally fake, the memory access over the limit is possible.
+    
+    This is the log from my system usning lz4 decompression.
+       [6502]data abort, halting
+       [6503]r0  0x00000000 r1  0x00000000 r2  0xdcea0ffc r3  0xdcea0ffc
+       [6509]r4  0xb9ab0bfd r5  0xdcea0ffc r6  0xdcea0ff8 r7  0xdce80000
+       [6515]r8  0x00000000 r9  0x00000000 r10 0x00000000 r11 0xb9a98000
+       [6522]r12 0xdcea1000 usp 0x00000000 ulr 0x00000000 pc  0x820149bc
+       [6528]spsr 0x400001f3
+    and the memory addresses of some variables at the moment are
+        ref:0xdcea0ffc, op:0xdcea0ffc, oend:0xdcea1000
+    
+    As you can see, COPYLENGH is 8bytes, so @ref and @op can access the momory
+    over @oend.
+    
+    Signed-off-by: JeHyeon Yeon <tom.yeon@windriver.com>
+    Reviewed-by: David Sterba <dsterba@suse.cz>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Signed-off-by: Pranav Vashi <neobuddy89@gmail.com>
+    Signed-off-by: HridayHS <hridaysharma42@gmail.com>
+
+[33mcommit 7c66f2bf09cfcb22c9c04139b6d578ef5f448b48[m
+Author: Geliang Tang <geliangtang@163.com>
+Date:   Fri Nov 6 16:29:06 2015 -0800
+
+    zram: make is_partial_io/valid_io_request/page_zero_filled return boolean
+    
+    Make is_partial_io()/valid_io_request()/page_zero_filled() return boolean,
+    since each function only uses either one or zero as its return value.
+    
+    Signed-off-by: Geliang Tang <geliangtang@163.com>
+    Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+    Cc: Minchan Kim <minchan@kernel.org>
+    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ 

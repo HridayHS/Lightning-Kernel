@@ -26,7 +26,7 @@
 #define THUNDERCHARGE       "thundercharge"
 
 int mswitch = ENABLED;
-int custom_ac_current = AC_CURRENT;
+int custom_current = AC_CURRENT;
 int custom_usb_current = USB_CURRENT;
 
 #define DRIVER_VERSION  2
@@ -55,9 +55,9 @@ static ssize_t mswitch_store(struct kobject *kobj, struct kobj_attribute *attr, 
 return count;
 }
 
-static ssize_t cust_ac_current_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+static ssize_t cust_current_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
-	return sprintf(buf, "%d", custom_ac_current);
+	return sprintf(buf, "%d", custom_current);
 }
 
 static ssize_t cust_usb_current_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
@@ -76,12 +76,12 @@ static ssize_t cust_usb_current_show(struct kobject *kobj, struct kobj_attribute
 	return sprintf(buf, "%d", custom_usb_current);
 }
 
-static ssize_t cust_ac_current_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
+static ssize_t cust_current_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
 	int newcurr;
 	sscanf(buf, "%d", &newcurr);
 	if(mswitch == 1 && newcurr <= MAX_VBUS_CURRENT)
-		custom_ac_current = newcurr;
+		custom_current = newcurr;
 	else
 		pr_info("%s: disabled or limit reached, ignoring\n", THUNDERCHARGE);
 	return count;
@@ -103,11 +103,11 @@ static struct kobj_attribute chgr_ctrl_ver_attribute =
 		0444,
 		chgr_ver_show, NULL);
 
-static struct kobj_attribute cust_ac_current_attribute =
-	__ATTR(custom_ac_current,
+static struct kobj_attribute cust_current_attribute =
+	__ATTR(custom_current,
 		0666,
-		cust_ac_current_show,
-		cust_ac_current_store);
+		cust_current_show,
+		cust_current_store);
 
 static struct kobj_attribute cust_usb_current_attribute =
 	__ATTR(custom_usb_current,
@@ -117,7 +117,7 @@ static struct kobj_attribute cust_usb_current_attribute =
 
 static struct attribute *charger_control_attrs[] =
 	{
-		&cust_ac_current_attribute.attr,
+		&cust_current_attribute.attr,
 		&cust_usb_current_attribute.attr,
 		&mswitch_attribute.attr,
 		&chgr_ctrl_ver_attribute.attr,

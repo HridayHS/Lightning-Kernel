@@ -89,6 +89,7 @@ obj-$(CONFIG_ASMP)		+= autosmp.o
 obj-$(CONFIG_BRICKED_HOTPLUG) += bricked_hotplug.o
 obj-$(CONFIG_ALUCARD_HOTPLUG) += alucard_hotplug.o
 obj-$(CONFIG_CLUSTER_PLUG)	+= cluster_plug.o
+obj-$(CONFIG_BLU_PLUG) += blu_plug.o
 obj-$(CONFIG_STATE_NOTIFIER)		+= state_notifier.o
 obj-$(CONFIG_MSM_LIMITER) += msm_limiter.o
 obj-$(CONFIG_MSM_HOTPLUG) += msm_hotplug.o

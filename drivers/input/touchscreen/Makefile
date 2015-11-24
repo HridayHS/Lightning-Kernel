@@ -85,11 +85,5 @@ obj-$(CONFIG_TOUCHSCREEN_HQ_GT9XX)	+= gt9xx_hq/
 obj-$(CONFIG_TOUCHSCREEN_GT9XX)		+= gt9xx/
 obj-$(CONFIG_TOUCHSCREEN_BU21150)	+= bu21150.o
 obj-$(CONFIG_INPUT_MT_WRAPPER)		+= input_mt_wrapper.o
-obj-$(CONFIG_TOUCHSCREEN_YL_GT9XX)	+= gt9xx_yl/
-obj-$(CONFIG_TOUCHSCREEN_WT_GT9XX)	+= gt9xx_wt/
 obj-y += touchboost.o
-obj-$(CONFIG_TOUCHSCREEN_BU21150)	+= bu21150.o
-obj-$(CONFIG_INPUT_MT_WRAPPER)		+= input_mt_wrapper.o
-
 obj-$(CONFIG_MACH_YULONG)		+= touchscreen_yl.o
-

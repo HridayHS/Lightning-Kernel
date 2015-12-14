@@ -655,14 +655,14 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 	  to override these values.
 
 config MSM_CPU_FREQ_MAX
-	int "Max CPU Frequency"
-	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 1209600
+ 	int "Max CPU Frequency"
+ 	depends on MSM_CPU_FREQ_SET_MIN_MAX
+ 	default 1113600
 
 config MSM_CPU_FREQ_MIN
-	int "Min CPU Frequency"
-	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 302400
+ 	int "Min CPU Frequency"
+ 	depends on MSM_CPU_FREQ_SET_MIN_MAX
+	default 200000
 
 endif # CPU_FREQ_MSM
 

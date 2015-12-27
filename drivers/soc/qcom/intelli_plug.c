@@ -55,13 +55,13 @@ static struct workqueue_struct *intelliplug_boost_wq;
 static unsigned int intelli_plug_active = 0;
 module_param(intelli_plug_active, uint, 0664);
 
-static unsigned int touch_boost_active = 1;
+static unsigned int touch_boost_active = 0;
 module_param(touch_boost_active, uint, 0664);
 
 static unsigned int nr_run_profile_sel = 0;
 module_param(nr_run_profile_sel, uint, 0664);
 
-static unsigned int is_insanity = 1;
+static unsigned int is_insanity = 0;
 module_param(is_insanity, uint, 0444);
 
 //default to something sane rather than zero

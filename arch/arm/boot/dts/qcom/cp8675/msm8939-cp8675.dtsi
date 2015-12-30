@@ -78,7 +78,7 @@
 			yl,term-current-mA = <150>;
 			yl,vsp-mv = <4500>;
 			yl,safety-charge_current-mA = <1500>;
-			yl,safety-voltage-mv = <4380>;
+			yl,safety-voltage-mv = <5380>;
 			yl,enable-te;
 			yl,recharge-thresh-mv = <100>;
 			yl,vbus-ovp-mv = <6500>;

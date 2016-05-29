@@ -85,8 +85,8 @@
 			yl,recharge-thresh-mv = <100>;
 			yl,vbus-ovp-mv = <6500>;
 			yl,recharge-capa = <99>;
-			yl,batt-temp-hot = <520>; /* 52 celsius */
-			yl,batt-temp-too-hot = <570>; /* 57 celsius*/
+			yl,batt-temp-hot = <520>; /* 50 celsius (real temp) */
+			yl,batt-temp-too-hot = <590>; /* 57 celsius (real temp) */
 			yl,batt-temp-cold = <100>;  /* 10 celsius */
 			yl,batt-temp-too-cold = <0>;  /*3 celsius*/
 			yl,batt-psy-name = "battery";
